@@ -28,6 +28,13 @@ public class VentanaPaqueteria {
     private JList list3;
     private JComboBox comboBox4;
     private JButton calcularButton;
+    private JTextField textField4;
+    private JButton buscarButton;
+    private JList list4;
+    private JTextField textField5;
+    private JList list5;
+    private JComboBox comboBox5;
+    private JButton buscarPorCedulaEstadoButton;
     private JTextArea textArea1;
 
     private Lista paquetes = new Lista();
@@ -77,6 +84,21 @@ public class VentanaPaqueteria {
             }
         });
 
+        list1.addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if(list1.getSelectedIndex()!=-1) {
+                    int indice = list1.getSelectedIndex();
+                    Paqueteria pa = paquetes.getServiEntrega().get(indice);
+                    spinner1.setValue(pa.getTracking());
+                    textField1.setText(String.valueOf(pa.getPeso()));
+                    comboBox1.setSelectedItem(pa.getCiudadEntrega());
+                    comboBox2.setSelectedItem(pa.getCiudadRecepcion());
+                    textField2.setText(pa.getCedulaReceptor());
+                }
+            }
+        });
+
 
 
         totalPaquetesButton.addActionListener(new ActionListener() {
@@ -115,20 +137,7 @@ public class VentanaPaqueteria {
             }
         });
 
-        list1.addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if(list1.getSelectedIndex()!=-1) {
-                    int indice = list1.getSelectedIndex();
-                    Paqueteria pa = paquetes.getServiEntrega().get(indice);
-                    spinner1.setValue(pa.getTracking());
-                    textField1.setText(String.valueOf(pa.getPeso()));
-                    comboBox1.setSelectedItem(pa.getCiudadEntrega());
-                    comboBox2.setSelectedItem(pa.getCiudadRecepcion());
-                    textField2.setText(pa.getCedulaReceptor());
-                }
-            }
-        });
+
 
         modificarEstadoDelPaqueteButton.addActionListener(new ActionListener() {
             @Override
@@ -174,6 +183,41 @@ public class VentanaPaqueteria {
             public void actionPerformed(ActionEvent e) {
                 llenarJlistOriginal();
                 llenasJlistPeso();
+            }
+        });
+
+        buscarButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    llenarJlistBusqueda(Integer.parseInt(textField4.getText()));
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(null, "Numero de Tracking invalido: ");
+                }
+            }
+        });
+
+        buscarPorCedulaEstadoButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String cedula = textField5.getText();
+                String estado = comboBox5.getSelectedItem().toString();
+                if (!cedula.isEmpty() && !estado.isEmpty()) {
+                    List<Paqueteria> resultado = paquetes.buscarPaquetesPorCedulaYEstado(cedula, estado);
+                    DefaultListModel resultadoModel = new DefaultListModel();
+
+                    for (Paqueteria p : resultado) {
+                        resultadoModel.addElement(p);
+                    }
+
+                    if (resultado.isEmpty()) {
+                        resultadoModel.addElement("No se encontraron paquetes con la cédula y estado proporcionados.");
+                    }
+
+                    list5.setModel(resultadoModel);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Por favor, ingrese una cédula y seleccione un estado.");
+                }
             }
         });
 
@@ -229,6 +273,27 @@ public class VentanaPaqueteria {
             dlmOrdenada.addElement(p);
         }
         list3.setModel(dlmOrdenada);
+    }
+
+    public void llenarJlistCedulaEstado(){
+        DefaultListModel dlm = new DefaultListModel<>();
+        dlm.removeAllElements();
+        for (Paqueteria p: paquetes.getServiEntrega())
+            dlm.addElement(p);
+        list5.setModel(dlm);
+    }
+
+    public void llenarJlistBusqueda(int tracking) throws Exception {
+        DefaultListModel dlm3 = new DefaultListModel<>();
+        List<Paqueteria> listaOrdenada = paquetes.ordenarPaquetesPorTracking();
+        int indiceEncontrado = paquetes.busquedaBinaria(listaOrdenada, tracking);
+
+        if (indiceEncontrado != -1) {
+            dlm3.addElement(listaOrdenada.get(indiceEncontrado));
+        } else {
+            throw new Exception("Paquete no encontrado.");
+        }
+        list4.setModel(dlm3);
     }
 
     public static void main(String[] args) {

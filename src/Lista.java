@@ -124,6 +124,22 @@ public class Lista {
         return null;
     }
 
+    public int busquedaBinaria(List<Paqueteria> listaOrdenada, int tracking) {
+        int inicio = 0;
+        int fin = listaOrdenada.size() - 1;
+        while (inicio <= fin) {
+            int medio = inicio + (fin - inicio) / 2;
+            if (listaOrdenada.get(medio).getTracking() == tracking)
+                return medio;
+
+            if (listaOrdenada.get(medio).getTracking() < tracking)
+                inicio = medio + 1;
+            else
+                fin = medio - 1;
+        }
+        return -1;
+    }
+
 
     public List<Paqueteria> ordenarPaquetesPorTracking() {
         List<Paqueteria> lista = new ArrayList<>(serviEntrega);
@@ -151,6 +167,16 @@ public class Lista {
             lista.set(j + 1, aux);
         }
         return lista;
+    }
+
+    public List<Paqueteria> buscarPaquetesPorCedulaYEstado(String cedula, String estado) {
+        List<Paqueteria> resultado = new ArrayList<>();
+        for (Paqueteria p : serviEntrega) {
+            if (p.getCedulaReceptor().equals(cedula) && p.getEstado().equals(estado)) {
+                resultado.add(p);
+            }
+        }
+        return resultado;
     }
 
 }
